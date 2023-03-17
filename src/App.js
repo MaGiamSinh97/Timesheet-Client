@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Fileupload from "./components/uploadfile.component";
 import Timesheet from "./components/timesheet.component";
+import { Project } from "./components/project.component";
 
 class App extends Component {
   render() {
@@ -16,7 +17,12 @@ class App extends Component {
           <div className="navbar-nav mr-auto">
             <li className="nav-item">
               <Link to={"/"} className="nav-link">
-                List
+                My Timesheet
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/project"} className="nav-link">
+                Project
               </Link>
             </li>
             <li className="nav-item">
@@ -30,6 +36,7 @@ class App extends Component {
           <Routes>
             <Route path="/" element={<Timesheet/>} />
             <Route path="/upload" element={<Fileupload/>} />
+            <Route path="/project" element={<Project/>} />
           </Routes> 
         </div>
       </div>
