@@ -12,17 +12,24 @@ class Fileupload extends React.Component {
     const url = `https://localhost:44355/api/Uploadfiles/ImportFile`;
     const formData = new FormData();
     formData.append("file", this.state.file);
+    if(this.state.file == ""){
+      alert("please select file");
+      return
+    }
     const config = {
       headers: {
         "content-type": "multipart/form-data",
       },
     };
     return post(url, formData, config).then((res) => {
-      console.log(res.status);
       if (res.status === 200){
-        alert("success");
+        alert("Import success");
         window.location.reload();
       }
+      else{
+        alert("Import fail");
+      }
+
     });
   }
   setFile(e) {

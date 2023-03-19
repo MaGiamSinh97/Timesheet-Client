@@ -8,10 +8,10 @@ export class Project extends Component {
             projects: [],
             modalTitle: "",
             projectName: "",
-            du:"",
-            description:"",
+            du: "",
+            description: "",
             projectId: 0,
-            
+
             projectIdFilter: "",
             projectNameFilter: "",
             duFilter: "",
@@ -31,7 +31,7 @@ export class Project extends Component {
                     el.projectName.toString().toLowerCase().includes(
                         projectNameFilter.toString().trim().toLowerCase()
                     )
-                &&
+                    &&
                     el.du.toString().toLowerCase().includes(
                         duFilter.toString().trim().toLowerCase()
                     )
@@ -69,7 +69,6 @@ export class Project extends Component {
         fetch(variables.API_URL + 'Project')
             .then(response => response.json())
             .then(data => {
-                debugger
                 this.setState({ projects: data, projectsWithoutFilter: data });
             });
     }
@@ -83,11 +82,11 @@ export class Project extends Component {
     }
 
     changeDu = (e) => {
-        this.setState({ du : e.target.value });
+        this.setState({ du: e.target.value });
     }
 
     changeDescription = (e) => {
-        this.setState({ description : e.target.value });
+        this.setState({ description: e.target.value });
     }
 
     addClick() {
@@ -95,18 +94,17 @@ export class Project extends Component {
             modalTitle: "Add Project",
             projectId: 0,
             projectName: "",
-            du:"",
-            description:""
+            du: "",
+            description: ""
         });
     }
     editClick(dep) {
-        debugger
         this.setState({
             modalTitle: "Edit Project",
             projectId: dep.projectId,
             projectName: dep.projectName,
             du: dep.du,
-            description: dep.description
+            description: dep.description != null ? dep.description : ""
         });
     }
 
@@ -181,7 +179,6 @@ export class Project extends Component {
             du,
             description
         } = this.state;
-
         return (
             <div>
                 <button type="button"
@@ -264,8 +261,8 @@ export class Project extends Component {
                                 Du
 
                             </th>
-                            <th>
-                                Options
+                            <th style={{width: '15%'}}>
+                                Options                    
                             </th>
                         </tr>
                     </thead>
@@ -294,7 +291,11 @@ export class Project extends Component {
                                             <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                                         </svg>
                                     </button>
-
+                                    <button type="button"
+                                        className="btn btn-light mr-1"
+                                        onClick={() => this.deleteClick(dep.projectId)}>
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-people-fill" viewBox="0 0 16 16"> <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/> <path fillRule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/> <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/> </svg>
+                                    </button>
                                 </td>
                             </tr>
                         )}
