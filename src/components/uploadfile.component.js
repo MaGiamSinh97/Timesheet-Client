@@ -12,7 +12,7 @@ class Fileupload extends React.Component {
     const url = `https://localhost:44355/api/Uploadfiles/ImportFile`;
     const formData = new FormData();
     formData.append("file", this.state.file);
-    if(this.state.file == ""){
+    if(this.state.file === ""){
       alert("please select file");
       return
     }

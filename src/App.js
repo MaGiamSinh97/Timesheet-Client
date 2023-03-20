@@ -5,6 +5,7 @@ import "./App.css";
 import Fileupload from "./components/uploadfile.component";
 import Timesheet from "./components/timesheet.component";
 import { Project } from "./components/project.component";
+import { Employee } from "./components/employee.component";
 
 class App extends Component {
   render() {
@@ -26,6 +27,11 @@ class App extends Component {
               </Link>
             </li>
             <li className="nav-item">
+              <Link to={"/employee"} className="nav-link">
+                Employee
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link to={"/upload"} className="nav-link">
                 Upload File
               </Link>
@@ -37,6 +43,7 @@ class App extends Component {
             <Route path="/" element={<Timesheet/>} />
             <Route path="/upload" element={<Fileupload/>} />
             <Route path="/project" element={<Project/>} />
+            <Route path="/employee" element={<Employee/>} />
           </Routes> 
         </div>
       </div>

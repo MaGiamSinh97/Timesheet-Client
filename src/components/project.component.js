@@ -1,23 +1,27 @@
 import React, { Component } from 'react';
 import { variables } from '../common/variables';
+import Select from 'react-select';
 
 export class Project extends Component {
     constructor(props) {
         super(props);
         this.state = {
             projects: [],
+            employees:[],
+            dropEmployees:[],
             modalTitle: "",
             projectName: "",
             du: "",
             description: "",
             projectId: 0,
-
+            memberId: 0,
             projectIdFilter: "",
             projectNameFilter: "",
             duFilter: "",
             projectsWithoutFilter: []
         }
     }
+    
     FilterFn() {
         var projectIdFilter = this.state.projectIdFilter;
         var projectNameFilter = this.state.projectNameFilter;
@@ -52,15 +56,18 @@ export class Project extends Component {
     }
 
     changeprojectIdFilter = (e) => {
+        // eslint-disable-next-line react/no-direct-mutation-state
         this.state.projectIdFilter = e.target.value;
         this.FilterFn();
     }
     changeprojectNameFilter = (e) => {
+        // eslint-disable-next-line react/no-direct-mutation-state
         this.state.projectNameFilter = e.target.value;
         this.FilterFn();
     }
 
     changeduFilter = (e) => {
+        // eslint-disable-next-line react/no-direct-mutation-state
         this.state.duFilter = e.target.value;
         this.FilterFn();
     }
@@ -71,6 +78,14 @@ export class Project extends Component {
             .then(data => {
                 this.setState({ projects: data, projectsWithoutFilter: data });
             });
+    }
+
+    refreshListMember() {
+        fetch(variables.API_URL + 'Project/GetMember/' +this.state.projectId)
+        .then(response => response.json())
+        .then(data => {
+            this.setState({ employees: data });
+        });
     }
 
     componentDidMount() {
@@ -170,6 +185,70 @@ export class Project extends Component {
         }
     }
 
+    removeMember(id) {
+        if (window.confirm('Are you sure remove member from this project?')) {
+            fetch(variables.API_URL + 'Project/RemoveMember/' + this.state.projectId+ '/' + id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(res => res.json())
+                .then((result) => {
+                    alert(result);
+                    this.refreshListMember();
+                }, (error) => {
+                    alert('Failed');
+                })
+        }
+    }
+
+    listClick(id) {
+        this.setState({projectId:id});
+        fetch(variables.API_URL + 'Project/GetMember/' +id)
+            .then(response => response.json())
+            .then(data => {
+                this.setState({ employees: data });
+            });
+        fetch(variables.API_URL + 'Employee')
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                let mapdata= data.map(opt => ({ label: opt.employeeName, value: opt.employeeId }));
+                this.setState({ dropEmployees: mapdata });
+            });
+    }
+    addMemberClick(){
+        fetch(variables.API_URL + 'Project/AddMember', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                EmployeeId: this.state.memberId,
+                ProjectId: this.state.projectId
+            })
+        })
+            .then(res => res.json())
+            .then((result) => {
+                alert(result);
+                this.refreshListMember();
+            }, (error) => {
+                alert('Members already exist in the project');
+            })
+    }
+    _renderMember() {
+        return (
+          <ul className='list-group'>
+            { 
+              this.state.employees.map(member => <li className='list-group-item' key={ member.id }><b>{ member.fullName }</b>  - {member.knoxId} - {member.du}<button type="button" className="btn btn-danger float-right" onClick={() => this.removeMember(member.id)}>Remove</button> </li>) 
+            }
+          </ul>
+        );
+      }
+      
     render() {
         const {
             projects,
@@ -293,7 +372,9 @@ export class Project extends Component {
                                     </button>
                                     <button type="button"
                                         className="btn btn-light mr-1"
-                                        onClick={() => this.deleteClick(dep.projectId)}>
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#listModal"
+                                        onClick={() => this.listClick(dep.projectId)}>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-people-fill" viewBox="0 0 16 16"> <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/> <path fillRule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/> <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/> </svg>
                                     </button>
                                 </td>
@@ -343,6 +424,35 @@ export class Project extends Component {
                                         onClick={() => this.updateClick()}
                                     >Update</button>
                                     : null}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="modal fade" id="listModal" tabIndex="-1" aria-hidden="true">
+                    <div className="modal-dialog modal-lg modal-dialog-centered">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">List member of Project</h5>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                                ></button>
+                            </div>
+
+                            <div className="modal-body overflow-auto">
+                                <div className='row'>
+                                <div className='col-sm-8'>
+                                <Select
+                                    options={this.state.dropEmployees}
+                                    onChange={opt => {this.state.memberId = opt.value}}
+                                    />
+                                </div>
+                                <div className='col-sm-4'>
+                                    <button type="button" className="btn btn-primary" onClick={() => this.addMemberClick()}>Add</button>
+                                </div>
+                                </div>
+
+                                <div className='overflow-auto' style={{height:'500px', marginTop:'30px'}}>
+                                    { this.state.employees && this._renderMember() }
+                                </div>
                             </div>
                         </div>
                     </div>
