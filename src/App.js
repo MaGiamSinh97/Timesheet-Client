@@ -6,18 +6,25 @@ import Fileupload from "./components/uploadfile.component";
 import Timesheet from "./components/timesheet.component";
 import { Project } from "./components/project.component";
 import { Employee } from "./components/employee.component";
+import Login from "./components/login.component";
+import { useState } from "react";
 
-class App extends Component {
-  render() {
-    return (
-      <div>
+function App() {
+  const [token, setToken] = useState();
+
+  if(!token) {
+    return <Login setToken={setToken} />
+  }
+
+  return (
+    <div>
         <nav className="navbar navbar-expand navbar-dark bg-dark">
           <Link to={"/"} className="navbar-brand">
             Timesheet
           </Link>
           <div className="navbar-nav mr-auto">
             <li className="nav-item">
-              <Link to={"/"} className="nav-link">
+              <Link to={"/timesheet"} className="nav-link">
                 My Timesheet
               </Link>
             </li>
@@ -40,15 +47,14 @@ class App extends Component {
         </nav>
         <div className="container mt-3">
           <Routes>
-            <Route path="/" element={<Timesheet/>} />
+            <Route path="/" element={<Login/>} />
+            <Route path="/timesheet" element={<Timesheet/>} />
             <Route path="/upload" element={<Fileupload/>} />
             <Route path="/project" element={<Project/>} />
             <Route path="/employee" element={<Employee/>} />
           </Routes> 
         </div>
       </div>
-    );
-  }
+  );
 }
-
 export default App;

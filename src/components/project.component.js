@@ -390,7 +390,6 @@ export class Project extends Component {
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"
                                 ></button>
                             </div>
-
                             <div className="modal-body">
                                 <div className="input-group mb-3">
                                     <span className="input-group-text">Project Name</span>
@@ -419,7 +418,7 @@ export class Project extends Component {
                                     : null}
 
                                 {projectId !== 0 ?
-                                    <button type="button"
+                                    <button type="submit"
                                         className="btn btn-primary float-start"
                                         onClick={() => this.updateClick()}
                                     >Update</button>

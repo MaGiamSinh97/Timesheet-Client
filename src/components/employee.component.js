@@ -11,6 +11,7 @@ export class Employee extends Component {
             du: "",
             knoxId: "",
             accNo:"",
+            passWord:"",
             employeeId: 0,
 
             employeeIdFilter: "",
@@ -95,6 +96,9 @@ export class Employee extends Component {
     changeAccNo = (e) => {
         this.setState({ accNo: e.target.value });
     }
+    changePassWord = (e) => {
+        this.setState({ passWord: e.target.value });
+    }
 
     addClick() {
         this.setState({
@@ -104,6 +108,7 @@ export class Employee extends Component {
             du: "",
             knoxId: "",
             accNo:"",
+            passWord:"",
         });
     }
     editClick(dep) {
@@ -113,7 +118,8 @@ export class Employee extends Component {
             employeeName: dep.employeeName,
             du: dep.du,
             knoxId: dep.knoxId,
-            accNo: dep.accNo
+            accNo: dep.accNo,
+            passWord: ""
         });
     }
 
@@ -128,7 +134,8 @@ export class Employee extends Component {
                 FullName: this.state.employeeName,
                 du: this.state.du,
                 knoxId: this.state.knoxId,
-                accNo:this.state.accNo
+                accNo:this.state.accNo,
+                encPass:this.state.passWord
             })
         })
             .then(res => res.json())
@@ -151,7 +158,8 @@ export class Employee extends Component {
                 FullName: this.state.employeeName,
                 du: this.state.du,
                 knoxId: this.state.knoxId,
-                accNo:this.state.accNo
+                accNo:this.state.accNo,
+                encPass: this.state.passWord
             })
         })
             .then(res => res.json())
@@ -189,7 +197,8 @@ export class Employee extends Component {
             employeeName,
             du,
             knoxId,
-            accNo
+            accNo,
+            passWord
         } = this.state;
         return (
             <div>
@@ -341,6 +350,12 @@ export class Employee extends Component {
                                     <input type="text" className="form-control"
                                         value={accNo}
                                         onChange={this.changeAccNo} />
+                                </div>
+                                <div className="input-group mb-3">
+                                    <span className="input-group-text">Password</span>
+                                    <input type="password" className="form-control"
+                                        value={passWord}
+                                        onChange={this.changePassWord} />
                                 </div>
 
                                 {employeeId === 0 ?
