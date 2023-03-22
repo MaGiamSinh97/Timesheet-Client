@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link ,Navigate,Outlet } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import Fileupload from "./components/uploadfile.component";
@@ -7,10 +6,32 @@ import Timesheet from "./components/timesheet.component";
 import { Project } from "./components/project.component";
 import { Employee } from "./components/employee.component";
 import Login from "./components/login.component";
-import { useState } from "react";
+
+function setToken(userToken) {
+  sessionStorage.setItem('token', JSON.stringify(userToken));
+  window.location.reload();
+}
+
+function getToken() {
+  const tokenString = sessionStorage.getItem('token');
+  const userToken = JSON.parse(tokenString);
+  return userToken;
+}
 
 function App() {
-  const [token, setToken] = useState();
+  const ProtectedRoute = ({
+    isAllowed,
+    redirectPath = '/landing',
+    children,
+  }) => {
+    if (!isAllowed) {
+      return <Navigate to={redirectPath} replace />;
+    }
+  
+    return children ? children : <Outlet />;
+  };
+  const token = getToken();
+  const handleLogout = () => {sessionStorage.clear();window.location.reload();};
 
   if(!token) {
     return <Login setToken={setToken} />
@@ -18,40 +39,62 @@ function App() {
 
   return (
     <div>
-        <nav className="navbar navbar-expand navbar-dark bg-dark">
+        <nav className="navbar navbar-expand navbar-dark bg-dark">        
           <Link to={"/"} className="navbar-brand">
             Timesheet
           </Link>
           <div className="navbar-nav mr-auto">
-            <li className="nav-item">
+            <li className="nav-item">         
               <Link to={"/timesheet"} className="nav-link">
                 My Timesheet
               </Link>
             </li>
             <li className="nav-item">
-              <Link to={"/project"} className="nav-link">
+              {token.role === 1?(<Link to={"/project"} className="nav-link">
                 Project
-              </Link>
+              </Link>):""}
+
             </li>
             <li className="nav-item">
-              <Link to={"/employee"} className="nav-link">
+            {token.role === 1?(<Link to={"/employee"} className="nav-link">
                 Employee
-              </Link>
+              </Link>):""}
             </li>
             <li className="nav-item">
-              <Link to={"/upload"} className="nav-link">
+            {token.role === 1?(<Link to={"/upload"} className="nav-link">
                 Upload File
-              </Link>
-            </li>
+              </Link>):""}
+            </li>          
           </div>
+          {token?(<span style={{color:'white',paddingRight:'10px'}}>{token.name}</span>):("")}
+          {token?(<button className="btn btn-secondary float-right" onClick={handleLogout}>Sign Out</button>):("")}
         </nav>
         <div className="container mt-3">
           <Routes>
-            <Route path="/" element={<Login/>} />
+            <Route index element={<Timesheet />} />
+            <Route path="/login" element={<Login/>} />
             <Route path="/timesheet" element={<Timesheet/>} />
-            <Route path="/upload" element={<Fileupload/>} />
-            <Route path="/project" element={<Project/>} />
-            <Route path="/employee" element={<Employee/>} />
+            <Route path="/upload" element={  
+            <ProtectedRoute
+              redirectPath="/login"
+              isAllowed={!!token && token.role === 1}
+            >
+              <Fileupload/>
+            </ProtectedRoute>} />
+            <Route path="/project" element={  
+            <ProtectedRoute
+              redirectPath="/login"
+              isAllowed={!!token && token.role === 1}
+            >
+              <Project/>
+            </ProtectedRoute>} />
+            <Route path="/employee" element={  
+            <ProtectedRoute
+              redirectPath="/login"
+              isAllowed={!!token && token.role === 1}
+            >
+              <Employee/>
+            </ProtectedRoute>} />
           </Routes> 
         </div>
       </div>

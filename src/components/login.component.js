@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import { useState } from "react";
 import { variables } from '../common/variables';
 
@@ -14,16 +13,15 @@ async function loginUser(credentials) {
    }
 
 export default function Login({ setToken }) {
-    const [FullName, setUserName] = useState();
+    const [knoxId, setUserName] = useState();
     const [encPass, setPassword] = useState();
     const handleSubmit = async e => {
         e.preventDefault();
         const token = await loginUser({
-            FullName,
+            knoxId,
             encPass
         });
-        debugger
-        setToken(token.data);
+        setToken(token);
       }
   return (
     <section className="ftco-section" style={{marginTop:'30px'}}>
@@ -79,6 +77,3 @@ export default function Login({ setToken }) {
     </section>
   );
 }
-Login.propTypes = {
-    setToken: PropTypes.func.isRequired
-  };
