@@ -18,7 +18,7 @@ export class Project extends Component {
             projectIdFilter: "",
             projectNameFilter: "",
             duFilter: "",
-            projectsWithoutFilter: []
+            projectsWithoutFilter: [],
         }
     }
     
@@ -185,6 +185,45 @@ export class Project extends Component {
         }
     }
 
+    exportClick(id) {
+        if (window.confirm('Do you want export timesheets for this project?')) {
+            fetch(variables.API_URL + 'Uploadfiles/ExportFile/' + id, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then((res)=>{
+                    const link = document.createElement('a');
+                    link.href = res.url;
+                    link.setAttribute('download', `${Date.now()}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                })
+        }
+    }
+
+    exportAllClick(id) {
+        if (window.confirm('Do you want export timesheets for all project?')) {
+            id=0;
+            fetch(variables.API_URL + 'Uploadfiles/ExportFile/' + id, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then((res)=>{
+                    const link = document.createElement('a');
+                    link.href = res.url;
+                    link.setAttribute('download', `${Date.now()}.xlsx`);
+                    document.body.appendChild(link);
+                    link.click();
+                })
+        }
+    }
+
     removeMember(id) {
         if (window.confirm('Are you sure remove member from this project?')) {
             fetch(variables.API_URL + 'Project/RemoveMember/' + this.state.projectId+ '/' + id, {
@@ -267,6 +306,11 @@ export class Project extends Component {
                     onClick={() => this.addClick()}>
                     Add project
                 </button>
+                <button type="button"
+                    className="btn btn-primary m-2 float-end"
+                    onClick={() => this.exportAllClick()}>
+                    Export All
+                </button>
                 <table className="table table-striped">
                     <thead>
                         <tr>
@@ -340,7 +384,7 @@ export class Project extends Component {
                                 Du
 
                             </th>
-                            <th style={{width: '15%'}}>
+                            <th style={{width: '19%'}}>
                                 Options                    
                             </th>
                         </tr>
@@ -376,6 +420,11 @@ export class Project extends Component {
                                         data-bs-target="#listModal"
                                         onClick={() => this.listClick(dep.projectId)}>
                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-people-fill" viewBox="0 0 16 16"> <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/> <path fillRule="evenodd" d="M5.216 14A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216z"/> <path d="M4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/> </svg>
+                                    </button>
+                                    <button type="button"
+                                        className="btn btn-light mr-1"
+                                        onClick={() => this.exportClick(dep.projectId)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 576 512"><path d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V288H216c-13.3 0-24 10.7-24 24s10.7 24 24 24H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM384 336V288H494.1l-39-39c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l80 80c9.4 9.4 9.4 24.6 0 33.9l-80 80c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l39-39H384zm0-208H256V0L384 128z"/></svg>
                                     </button>
                                 </td>
                             </tr>
