@@ -221,7 +221,7 @@ export class Employee extends Component {
     }
   }
   timeClick (dep){
-    this.setState({typeTime: 1})
+    this.setState({typeTime: 1,employeeId:dep.employeeId})
   }
   addTimeWorkClick(){
     fetch(variables.API_URL + "TimeWork", {
@@ -231,6 +231,7 @@ export class Employee extends Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          employeeId: this.state.employeeId,
           type: this.state.typeTime,
           timeIn: this.state.timeIn,
           timeOut: this.state.timeOut,
