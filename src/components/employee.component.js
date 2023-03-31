@@ -25,6 +25,7 @@ export class Employee extends Component {
       timeFrom: "",
       timeTo: "",
       typeTime: 1,
+      timeworks: [],
     };
   }
   FilterFn() {
@@ -85,7 +86,13 @@ export class Employee extends Component {
         this.setState({ employees: data, employeesWithoutFilter: data });
       });
   }
-
+  refreshListTimework(){
+    fetch(variables.API_URL + "Timework/"+this.state.employeeId)
+    .then((response) => response.json())
+    .then((data) => {
+      this.setState({ timeworks: data });
+    });
+  }
   componentDidMount() {
     this.refreshList();
   }
@@ -112,7 +119,6 @@ export class Employee extends Component {
   };
   changeTypeTime = (e) => {
     this.setState({ typeTime: e.target.value });
-    console.log(this.state.typeTime);
   };
   changeTimeIn = (timeIn) => this.setState({ timeIn });
   changeTimeOut = (timeOut) => this.setState({ timeOut });
@@ -220,34 +226,78 @@ export class Employee extends Component {
         );
     }
   }
-  timeClick (dep){
-    this.setState({typeTime: 1,employeeId:dep.employeeId})
+  timeClick(dep) {
+    this.setState({ typeTime: 1, employeeId: dep.employeeId });
+    fetch(variables.API_URL + "Timework/" + dep.employeeId)
+      .then((response) => response.json())
+      .then((data) => {
+        this.setState({ timeworks: data });
+      });
   }
-  addTimeWorkClick(){
+  addTimeWorkClick() {
     fetch(variables.API_URL + "TimeWork", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        employeeId: this.state.employeeId,
+        type: this.state.typeTime,
+        timeIn: this.state.timeIn,
+        timeOut: this.state.timeOut,
+        startApply: this.state.timeFrom,
+        endApply: this.state.timeTo,
+      }),
+    })
+      .then((res) => res.json())
+      .then(
+        (result) => {
+          alert(result);
         },
-        body: JSON.stringify({
-          employeeId: this.state.employeeId,
-          type: this.state.typeTime,
-          timeIn: this.state.timeIn,
-          timeOut: this.state.timeOut,
-          startApply: this.state.timeFrom,
-          endApply: this.state.timeTo
-        }),
-      })
-        .then((res) => res.json())
-        .then(
-          (result) => {
-            alert(result);
-          },
-          (error) => {
-            alert("Failed");
-          }
-        );
+        (error) => {
+          alert("Failed");
+        }
+      );
+  }
+  removeTimework(id){
+    if (window.confirm('Are you sure remove timework of this member?')) {
+        fetch(variables.API_URL + 'Timework/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(res => res.json())
+            .then((result) => {
+                alert(result);
+                this.refreshListTimework();
+            }, (error) => {
+                alert('Failed');
+            })
+    }
+  }
+
+  _renderTimework() {
+    return (
+      <ul className="list-group">
+        {this.state.timeworks.map((time) => (
+          <li className="list-group-item" key={time.id}>
+            <b>{time.type == 1 ? "Fixed" : "Flexible"}</b> - Time In:{" "}
+            {time.timeIn} - Time Out: {time.timeOut} - From: {time.startApply} -
+            To: {time.endApply}
+            <button
+              type="button"
+              className="btn btn-danger float-right"
+              onClick={() => this.removeTimework(time.id)}
+            >
+              Remove
+            </button>{" "}
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   render() {
@@ -463,7 +513,7 @@ export class Employee extends Component {
                     type="button"
                     className="btn btn-light mr-1"
                     data-bs-toggle="modal"
-                    data-bs-target="#timeModal"
+                    data-bs-target="#listTimeModal"
                     onClick={() => this.timeClick(dep)}
                   >
                     <svg
@@ -593,7 +643,7 @@ export class Employee extends Component {
         </div>
         <div
           className="modal fade"
-          id="timeModal"
+          id="addTimeModal"
           tabIndex="-1"
           aria-hidden="true"
         >
@@ -613,19 +663,21 @@ export class Employee extends Component {
                 <div className="row">
                   <div className="col-md-4">Type working time</div>
                   <div className="col-md-4">
-                  <select
-                  className="form-select"
-                  aria-label="select role"
-                  value={typeTime}
-                  onChange={this.changeTypeTime}
-                >
-                  <option value="1">Fixed</option>
-                  <option value="2">Flexible</option>
-                </select>                   
+                    <select
+                      className="form-select"
+                      aria-label="select role"
+                      value={typeTime}
+                      onChange={this.changeTypeTime}
+                    >
+                      <option value="1">Fixed</option>
+                      <option value="2">Flexible</option>
+                    </select>
                   </div>
                 </div>
                 <div className="row" style={{ marginTop: "20px" }}>
-                  <div className="col-md-4">{this.state.typeTime == 1 ? 'Time In':'Flexi From'}</div>
+                  <div className="col-md-4">
+                    {this.state.typeTime == 1 ? "Time In" : "Flexi From"}
+                  </div>
                   <div className="col-md-8">
                     <TimePicker
                       onChange={this.changeTimeIn}
@@ -635,7 +687,9 @@ export class Employee extends Component {
                   </div>
                 </div>
                 <div className="row" style={{ marginTop: "20px" }}>
-                  <div className="col-md-4">{this.state.typeTime == 1 ? 'Time Out':'Flexi To'}</div>
+                  <div className="col-md-4">
+                    {this.state.typeTime == 1 ? "Time Out" : "Flexi To"}
+                  </div>
                   <div className="col-md-8">
                     <TimePicker
                       onChange={this.changeTimeOut}
@@ -671,6 +725,47 @@ export class Employee extends Component {
                 >
                   Add
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          className="modal fade"
+          id="listTimeModal"
+          tabIndex="-1"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">List timeworks of member</h5>
+                <button
+                  type="button"
+                  className="btn btn-primary float-start"
+                  style={{ marginLeft: "10px" }}
+                  data-bs-toggle="modal"
+                  data-bs-target="#addTimeModal"
+                >
+                  Add Timeworks
+                </button>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+
+              <div className="modal-body overflow-auto">
+                <div
+                  className="overflow-auto"
+                  style={{marginTop: "10px" }}
+                >
+                  {this.state.timeworks=="" &&
+                    <b>No data!</b>
+                   }       
+                  {this.state.timeworks && this._renderTimework()}
+                </div>
               </div>
             </div>
           </div>

@@ -253,7 +253,6 @@ export class Project extends Component {
         fetch(variables.API_URL + 'Employee')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 let mapdata= data.map(opt => ({ label: opt.employeeName, value: opt.employeeId }));
                 this.setState({ dropEmployees: mapdata });
             });
